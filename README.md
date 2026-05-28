@@ -6,36 +6,6 @@ Muitas vezes, falhas no recebimento de mensagens de cidadãos são tratadas erro
 
 ---
 
-## 📌 Histórico de Intervenções e Casos de Sucesso
-
-### 📁 Caso #1: Câmara Municipal de Novo Horizonte
-* **Tecnologia:** ASP.NET Core 8.0 (Razor Pages) + Arquitetura de Pacotes Corporativos (`Sino.Sistema.*`).
-* **Status:** ✅ 100% Funcional e Homologado.
-
-#### 🛠️ Problemas Detectados & Soluções Aplicadas
-
-1. **Gargalo no `ModelState.IsValid` (Validação Falsa no Servidor)**
-   * **Sintoma:** O formulário travava no envio e a página recarregava sem exibir erros.
-   * **Causa:** A propriedade interna `ErrorMessage` estava decorada com `[BindProperty]`. O framework interpretava que o HTML frontend era obrigado a enviar dados para esse campo (devido ao comportamento padrão de *Nullable Reference Types* do .NET moderno), causando uma falha silenciosa de validação.
-   * **Correção:** Remoção do atributo `[BindProperty]` da string de exibição do servidor.
-
-2. **Ausência de Mapeamento de Destinatários em Ambiente Local**
-   * **Sintoma:** O envio passava da validação inicial, mas falhava ao identificar o destino.
-   * **Causa:** O dicionário de propriedades do `appsettings.json` local não possuía a chave esperada pelo bloco de opções de endereço (`_enderecoOptions`).
-   * **Correção:** Injeção manual do bloco `"Endereco": { "Faleconosco": "..." }` para fins de homologação em ambiente local.
-
-3. **Rejeição por *Spoofing* e *Throttling* no Servidor SMTP**
-   * **Sintoma:** Log de erro acusando descarte do e-mail: `Reason: Sender has been throttled`.
-   * **Causa:** O componente de mensageria injetava o remetente `noreply9@siscam.com.br`, mas as credenciais locais autenticavam com o domínio `@sinoinformatica.com.br`. O servidor de e-mail barrou o envio por entender que se tratava de uma falsificação de identidade (*Spoofing*).
-   * **Correção:** Localização dos parâmetros de configuração armazenados de forma dinâmica na memória de tabelas do **Banco de Dados** (`sitenovohorizonte`).
-
-4. **Falha de Autenticação na Porta 587 (`SmtpException`)**
-   * **Sintoma:** Exceção explícita em tela informando que o servidor exigia autenticação anônima bloqueada.
-   * **Causa:** Ao alterar o remetente no banco de dados, o ecossistema tentava conexão sem passar usuário e senha.
-   * **Correção:** Parametrização completa das colunas de infraestrutura na tabela do banco (Host, Porta, Usuário SMTP e Senha), consolidando o handshake e a entrega final na caixa de entrada corporativa.
-
----
-
 ## 🚀 Como Contribuir para Novos Formulários/Sites
 
 Se você encontrar um novo portal com formulário de contato ou reCAPTCHA quebrado, siga este roteiro de depuração padrão do projeto:
